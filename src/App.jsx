@@ -4,6 +4,9 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import Dropzone from './Dropzone.jsx'
+import {GoogleGenerativeAI} from "@google/generative-ai";
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_KEY);
+const model = genAI.getGenerativeModel({model:"gemini-1.5-flash"});
 
 function App() {
     const [rawText, setRawText] = useState('')
@@ -18,12 +21,86 @@ function App() {
     const handleAnalysis = async () => {
         setIsAnalysing(true);
 
-        //mock trial-out
-        setTimeout(() => { setAnalysis([
-            {title: 'AI Consultant', desc: 'helping companies align AI tools to their business workflows'},
-            {title: 'Synthetic Data Manager', desc: 'Overseeing training data for new model datasets'}
-        ])
-        setIsAnalysing(false)}, 2000)
+        try{
+            const prompt = `
+            Analyze this CV text and suggest 2 realistic career pivots.
+            Return the result ONLY as a JSON array of objects with "title" and "desc" keys.
+            CV Text: ${rawText}
+            `;
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+
+            const cleanJson = text.replace(/```json|```/gi, "").trim();
+            const parsedData = JSON.parse(cleanJson);
+
+            setAnalysis(parsedData);
+        } catch (error){
+            console.log(error)
+        } finally {
+            setIsAnalysing(false);
+        }
+    }
+
+    function title(){
+        if(!rawText){
+            return (
+                <>
+                    <h1>Find your Pivot</h1>
+                    <p>Upload your CV PDF below</p>
+                    <Dropzone onParsedFile={(text) => setRawText(text)} />
+                </>
+            )
+        }
+    }
+
+    function uploadedCV(){
+        if( isAnalysing ){
+            return (
+                <p className="loading-text">Fetching Results...</p>
+            )
+        }
+        if (rawText && !analysis && !isAnalysing) {
+            return (
+                <div>
+                    <p> CV Parsed - {rawText.length} characters</p>
+                    <div className="btn-container">
+                        <button onClick={handleAnalysis} className="analyse-btn">
+                            Generate Pivot
+                        </button>
+                        <button className="reset-btn" onClick={startOver}>
+                            Clear File
+                        </button>
+                    </div>
+                </div>
+                )
+        }
+    }
+
+    function careerPivot(){
+        if(analysis){
+            return (
+                <div className="results-container">
+                    <div className="results-grid">
+                        {analysis.map((job, i) => (
+                            <div key={i} className="card">
+                                <h3>{job.title}</h3>
+                                <p>{job.desc}</p>
+                                <a href={`https://google.com{encodeURIComponent(job.title + "career outlook 2030")}`}
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    Research Role →
+                                </a>
+                            </div>
+                        ))}
+                    </div>
+                    <button className="reset-btn" onClick={startOver}>
+                        Clear File
+                    </button>
+                </div>
+            )
+        }
     }
 
         return (
@@ -35,52 +112,11 @@ function App() {
               <img src={viteLogo} className="vite" alt="Vite logo" />
             </div>
             <div>
-              <h1>Find your Pivot</h1>
-                {!rawText && (
-                    <>
-                        <p>Upload your CV PDF below</p>
-                        <Dropzone onParsedFile={(text) => setRawText(text)} />
-                    </>
-                )}
-                {rawText && !analysis && !isAnalysing && (
-                    <div>
-                        <p> CV Parsed - {rawText.length} characters</p>
-                        <div className="btn-container">
-                            <button onClick={handleAnalysis} className="analyse-btn">
-                                Generate Pivot
-                            </button>
-                            <button className="reset-btn" onClick={startOver}>
-                                Clear File
-                            </button>
-                        </div>
-                    </div>
-                )}
-                {isAnalysing && (<p className="loading-text">Fetching Results...</p>)}
-
-                {analysis && (
-                    <div className="results-container">
-                        <div className="results-grid">
-                            {analysis.map((job, i) => (
-                                <div key={i} className="card">
-                                    <h3>{job.title}</h3>
-                                    <p>{job.desc}</p>
-                                    <a href={`https://google.com/{encodeURIComponent(job.title + "career outlook 2030")}`}
-                                       target="_blank"
-                                        rel="noopener noreferrer">
-                                        Research Role →
-                                    </a>
-                                </div>
-                            ))}
-                        </div>
-                        <button className="reset-btn" onClick={startOver}>
-                            Clear File
-                        </button>
-                    </div>
-              )}
+                {title()}
+                {uploadedCV()}
+                {careerPivot()}
             </div>
           </section>
-
-          <section id="spacer"></section>
         </>
       )
 }
