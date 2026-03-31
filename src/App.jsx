@@ -6,21 +6,24 @@ import './App.css'
 import Dropzone from './Dropzone.jsx'
 
 function App() {
-    const [analysis, setAnalysis] = useState([]);
+    const [rawText, setRawText] = useState('')
+    const [analysis, setAnalysis] = useState(null);
     const [isAnalysing, setIsAnalysing] = useState(false);
-    const [count, setCount] = useState(0);
 
-    const handleAnalysis = async (cvText) => {
-        setAnalysis(true);
+    const startOver = () =>{
+        setRawText('');
+        setAnalysis(null);
+        setIsAnalysing(false);
+    }
+    const handleAnalysis = async () => {
+        setIsAnalysing(true);
 
-        console.log('cv sent for analysis:' , cvText.substring(0,100))
         //mock trial-out
         setTimeout(() => { setAnalysis([
             {title: 'AI Consultant', desc: 'helping companies align AI tools to their business workflows'},
             {title: 'Synthetic Data Manager', desc: 'Overseeing training data for new model datasets'}
         ])
         setIsAnalysing(false)}, 2000)
-queueMicrotask()
     }
 
         return (
@@ -33,19 +36,50 @@ queueMicrotask()
             </div>
             <div>
               <h1>Find your Pivot</h1>
-               <Dropzone/>
+                {!rawText && (
+                    <>
+                        <p>Upload your CV PDF below</p>
+                        <Dropzone onParsedFile={(text) => setRawText(text)} />
+                    </>
+                )}
+                {rawText && !analysis && !isAnalysing && (
+                    <div>
+                        <p> CV Parsed - {rawText.length} characters</p>
+                        <div className="btn-container">
+                            <button onClick={handleAnalysis} className="analyse-btn">
+                                Generate Pivot
+                            </button>
+                            <button className="reset-btn" onClick={startOver}>
+                                Clear File
+                            </button>
+                        </div>
+                    </div>
+                )}
+                {isAnalysing && (<p className="loading-text">Fetching Results...</p>)}
+
+                {analysis && (
+                    <div className="results-container">
+                        <div className="results-grid">
+                            {analysis.map((job, i) => (
+                                <div key={i} className="card">
+                                    <h3>{job.title}</h3>
+                                    <p>{job.desc}</p>
+                                    <a href={`https://google.com/{encodeURIComponent(job.title + "career outlook 2030")}`}
+                                       target="_blank"
+                                        rel="noopener noreferrer">
+                                        Research Role →
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
+                        <button className="reset-btn" onClick={startOver}>
+                            Clear File
+                        </button>
+                    </div>
+              )}
             </div>
-            <button
-              className="counter"
-              onClick={() => setCount((count) => count + 1)}
-            >
-              Count is {count}
-            </button>
           </section>
 
-          <div className="ticks"></div>
-
-          <div className="ticks"></div>
           <section id="spacer"></section>
         </>
       )
