@@ -4,10 +4,8 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import Dropzone from './Dropzone.jsx'
-import {GoogleGenerativeAI} from "@google/generative-ai";
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_KEY);
-const model = genAI.getGenerativeModel({model:"gemini-1.5-flash"});
-
+import {GoogleGenAI} from "@google/genai"
+const genAI = new GoogleGenAI({apiKey : import.meta.env.VITE_GEMINI_KEY});
 function App() {
     const [rawText, setRawText] = useState('')
     const [analysis, setAnalysis] = useState(null);
@@ -28,13 +26,15 @@ function App() {
             CV Text: ${rawText}
             `;
 
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const text = response.text();
-
+            const response = await genAI.models.generateContent({model : 'gemini-2.5-flash',
+                                                                                        contents: [{ role: 'user',
+                                                                                                     parts: [{ text: prompt }]
+                                                                                        }]
+            });
+            const text = response.candidates[0].content.parts[0].text;
+            console.log('Response text:', text);
             const cleanJson = text.replace(/```json|```/gi, "").trim();
             const parsedData = JSON.parse(cleanJson);
-
             setAnalysis(parsedData);
         } catch (error){
             console.log(error)
