@@ -1,6 +1,6 @@
 import pdfToText from 'react-pdftotext';
 
-function Dropzone({ onParsedFile }) {
+function Dropzone({ onParsedFile, previewUrl }) {
     const runParse = typeof pdfToText === 'function'
         ? pdfToText
         : (pdfToText.default || Object.values(pdfToText).find(v => typeof v === 'function'));
@@ -13,14 +13,25 @@ function Dropzone({ onParsedFile }) {
         }
 
         runParse(file)
-            .then(text => onParsedFile(text))
+            .then(text => onParsedFile(text, file))
             .catch(err => console.error("Extraction failed", err));
 
     }
 
     return (
         <div className="dropzone-container">
-            <input type="file" accept="application/pdf" onChange={handleFileChange} />
+            {!previewUrl && <input type="file" accept="application/pdf" onChange={handleFileChange} />}
+
+            {previewUrl && (
+                <div className="pdf-preview">
+                    <h3>Document Preview:</h3>
+                    <iframe
+                        key={previewUrl}
+                        src={previewUrl}
+                        className="pdf-preview-embed"
+                    />
+                </div>
+            )}
         </div>
     );
 }

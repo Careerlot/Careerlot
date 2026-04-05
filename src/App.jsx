@@ -10,9 +10,12 @@
         const [analysis, setAnalysis] = useState(null);
         const [isAnalysing, setIsAnalysing] = useState(false);
         const navigate = useNavigate();
+        const [previewUrl, setPreviewUrl] = useState('');
 
         const startOver = () =>{
+            if(previewUrl) URL.revokeObjectURL(previewUrl);
             setRawText('');
+            setPreviewUrl('')
             setAnalysis(null);
             setIsAnalysing(false);
         }
@@ -42,12 +45,19 @@
             }
         }
 
+        const handleFileProcessed = (text, file) =>{
+            setRawText(text);
+            const blob = new Blob([file], { type: "application/pdf" });
+            const url= URL.createObjectURL(blob);
+            setPreviewUrl(url);
+        }
+
         function uploadCV(){
-            if(!rawText){
+            if(!analysis && !isAnalysing){
                 return (
                     <>
                         <p>Upload your CV PDF below</p>
-                        <Dropzone onParsedFile={(text) => setRawText(text)} />
+                        <Dropzone onParsedFile={handleFileProcessed} previewUrl={previewUrl}/>
                     </>
                 )
             }
