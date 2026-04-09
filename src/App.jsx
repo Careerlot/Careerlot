@@ -21,38 +21,27 @@
         const handleAnalysis = async () => {
             setIsAnalysing(true);
             setError(null);
-            try{
+            try {
                 const prompt = `
                 Analyse this CV text and suggest realistic career pivots.
                 Return the result ONLY as a JSON array of objects with "title" and "desc" keys.
                 CV Text: ${rawText}
                 `;
-
-                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                const response = await fetch("http://localhost:5200/api/careerapi/analyse", {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_KEY}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "model": "openrouter/auto",
-                        "messages": [
-                            { "role": "user", "content": prompt }
-                        ]
-                    })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(prompt) // Send the string directly
                 });
 
                 const data = await response.json();
-                const text = data.choices[0]?.message?.content || "";
-                const cleanJson = text.replace(/```json|```/gi, "").trim();
-                const parsedData = JSON.parse(cleanJson);
-                setAnalysis(parsedData);
+                setAnalysis(typeof data === 'string' ? JSON.parse(data) : data);
+
             } catch (error){
                 if(error.message.includes("503") || error.status === 503){
                     setError("Servers are busy. Please wait a moment and try again.");
                 } else{
                     setError("Something went wrong. Please try again later.");
-                    console.error("OpenRouter error:" , error);
+                    console.error("LLM error:" , error);
                 }
             } finally {
                 setIsAnalysing(false);
