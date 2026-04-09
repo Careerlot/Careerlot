@@ -11,7 +11,7 @@
         const [isAnalysing, setIsAnalysing] = useState(false);
         const navigate = useNavigate();
         const [previewUrl, setPreviewUrl] = useState('');
-
+        const [error, setError] = useState(null);
         const startOver = () =>{
             if(previewUrl) URL.revokeObjectURL(previewUrl);
             setRawText('');
@@ -21,7 +21,7 @@
         }
         const handleAnalysis = async () => {
             setIsAnalysing(true);
-
+            setError(null);
             try{
                 const prompt = `
                 Analyse this CV text and suggest realistic career pivots.
@@ -39,6 +39,11 @@
                 const parsedData = JSON.parse(cleanJson);
                 setAnalysis(parsedData);
             } catch (error){
+                if(error.message.includes("503") || error.status === 503){
+                    setError("Servers are busy. Please wait a moment and try again.");
+                } else{
+                    setError("Something went wrong. Please try again later.");
+                }
                 console.log(error)
             } finally {
                 setIsAnalysing(false);
@@ -120,6 +125,16 @@
             }
         }
 
+        function showError() {
+            if (error) {
+                return (
+                    <div className="error-message" style={{ color: 'red', marginTop: '10px' }}>
+                        <p>{error}</p>
+                    </div>
+                )
+            }
+        }
+
         const OpenCredits = () =>{
             navigate('/credits');
         }
@@ -134,6 +149,7 @@
                     {title()}
                     {uploadCV()}
                     {jobFetch()}
+                    {showError()}
                     {careerPivot()}
                     </div>
                 </section>
