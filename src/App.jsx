@@ -139,7 +139,7 @@
             navigate('/credits');
         }
 
-            return (
+        return (
             <>
                 <section id="center">
                     <div className="hero">
