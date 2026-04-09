@@ -3,8 +3,6 @@
     import jobImg from './assets/promotion.png'
     import './App.css'
     import Dropzone from './Dropzone.jsx'
-    import {GoogleGenAI} from "@google/genai"
-    const genAI = new GoogleGenAI({apiKey : import.meta.env.VITE_GEMINI_KEY});
     function App() {
         const [rawText, setRawText] = useState('')
         const [analysis, setAnalysis] = useState(null);
@@ -18,6 +16,7 @@
             setPreviewUrl('')
             setAnalysis(null);
             setIsAnalysing(false);
+            setError(null);
         }
         const handleAnalysis = async () => {
             setIsAnalysing(true);
@@ -29,12 +28,22 @@
                 CV Text: ${rawText}
                 `;
 
-                const response = await genAI.models.generateContent({model : 'gemini-2.5-flash',
-                                                                                            contents: [{ role: 'user',
-                                                                                                         parts: [{ text: prompt }]
-                                                                                            }]
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "model": "openrouter/auto",
+                        "messages": [
+                            { "role": "user", "content": prompt }
+                        ]
+                    })
                 });
-                const text = response.candidates[0]?.content?.parts[0]?.text || "";
+
+                const data = await response.json();
+                const text = data.choices[0]?.message?.content || "";
                 const cleanJson = text.replace(/```json|```/gi, "").trim();
                 const parsedData = JSON.parse(cleanJson);
                 setAnalysis(parsedData);
@@ -43,8 +52,8 @@
                     setError("Servers are busy. Please wait a moment and try again.");
                 } else{
                     setError("Something went wrong. Please try again later.");
+                    console.error("OpenRouter error:" , error);
                 }
-                console.log(error)
             } finally {
                 setIsAnalysing(false);
             }
