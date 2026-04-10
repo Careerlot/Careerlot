@@ -22,7 +22,7 @@
             setIsAnalysing(true);
             setError(null);
             try {
-                const response = await fetch("https://careerlot-api.gentlefield-a4bed227.ukwest.azurecontainerapps.io/api/CareerAPI/analyse", {
+                const response = await fetch("https://careerlot-api.gentlefield-a4bed227.ukwest.azurecontainerapps.io", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({cvText: rawText}) // Send the string directly
