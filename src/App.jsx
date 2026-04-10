@@ -22,15 +22,10 @@
             setIsAnalysing(true);
             setError(null);
             try {
-                const prompt = `
-                Analyse this CV text and suggest realistic career pivots.
-                Return the result ONLY as a JSON array of objects with "title" and "desc" keys.
-                CV Text: ${rawText}
-                `;
-                const response = await fetch("http://localhost:5200/api/careerapi/analyse", {
+                const response = await fetch("https://careerlot-api.internal.gentlefield-a4bed227.ukwest.azurecontainerapps.io", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(prompt) // Send the string directly
+                    body: JSON.stringify({cvText: rawText}) // Send the string directly
                 });
 
                 const data = await response.json();
@@ -109,7 +104,9 @@
                                     <p>{job.desc}</p>
                                     <a href={`https://google.com/search?q=${encodeURIComponent(job.title + " career outlook 2030")}`}
                                        target="_blank"
-                                       rel="noopener noreferrer">
+                                       rel="noopener noreferrer"
+
+                                    >
                                         Research Role →
                                     </a>
                                 </div>

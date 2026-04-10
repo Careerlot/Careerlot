@@ -9,7 +9,9 @@ function Credits() {
             <ul>
             <a href="https://www.flaticon.com/free-icons/career" title="career icons">Career icons created by Freepik - Flaticon</a> <br/>
             Powered by Google Gemini AI <br/>
-            Built with React and Vite
+            Built with React + Vite <br />
+            Hosted on Vercel and Azure <br />
+            OpenRouter API
             </ul>
             <button onClick={() => navigate('/')} className="reset-btn">
                 ← Back to App
