@@ -100,6 +100,17 @@
   transition: all 0.2s;
 }
 
+.credits-btn {
+  background-color: transparent;
+  border: 1px solid #646cff;
+  color: #646cff;
+  padding: 12px 24px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
 .analyse-btn {
   background-color: #646cff;
   color: white;
