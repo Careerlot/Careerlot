@@ -150,7 +150,7 @@
                 </section>
 
                 <section id="info">
-                    <button className="reset-btn" onClick={OpenCredits} > Credits </button>
+                    <button className="credits-btn" onClick={OpenCredits} > Credits </button>
                 </section>
             </>
           )
