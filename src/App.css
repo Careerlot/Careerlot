@@ -76,11 +76,6 @@
   place-content: center;
   place-items: center;
   flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
 }
 
 .btn-container {
@@ -120,8 +115,8 @@
   cursor: pointer;
   border: solid 1px grey;
   transition: all 0.2s;
-
 }
+
 .analyze-btn:hover {
   background-color: #535bf2;
 }
