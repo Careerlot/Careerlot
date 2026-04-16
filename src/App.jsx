@@ -1,6 +1,7 @@
-    import { useState } from 'react'
+    import {useEffect, useState} from 'react'
     import { useNavigate } from 'react-router-dom'
     import jobImg from './assets/promotion.png'
+    import {Sun, Moon} from 'lucide-react'
     import './App.css'
     import Dropzone from './Dropzone.jsx'
     function App() {
@@ -18,6 +19,16 @@
             setIsAnalysing(false);
             setError(null);
         }
+        const [theme, setTheme] = useState(() => {
+            const saved = localStorage.getItem('theme');
+            if (saved) return saved;
+            return window.matchMedia("(prefers-color-scheme: dark)").matches ? 'dark' : 'light';
+        });
+        useEffect(() => {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }, [theme]);
+        const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
         const handleAnalysis = async () => {
             setIsAnalysing(true);
             setError(null);
@@ -150,6 +161,15 @@
                 </section>
 
                 <section id="info">
+                    <div className="toggle-container">
+                        <label className="switch">
+                            <input type="checkbox" onChange={toggleTheme} checked={theme === 'dark'} />
+                            <span className="slider">
+                                <span className="icon"><Sun size={12} strokeWidth={2.5} color="#000000"  /></span>
+                                <span className="icon"><Moon size={12} strokeWidth={2.5} color="#000000"  /></span>
+                            </span>
+                        </label>
+                    </div>
                     <button className="credits-btn" onClick={OpenCredits} > Credits </button>
                 </section>
             </>
